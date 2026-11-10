@@ -114,8 +114,22 @@ public static class PreviewRenderer
         todos.AddTask("Preparar apresentação de sexta");
         todos.AddTask("Responder e-mails pendentes");
 
+        if (todos.Items.Count > 0)
+            SetPreviewTime(todos.Items[0], 12 * 60 + 34);
+        if (todos.Items.Count > 1)
+            SetPreviewTime(todos.Items[1], 48 * 60);
         if (todos.Items.Count > 2)
+        {
+            SetPreviewTime(todos.Items[2], 65 * 60 + 20);
             todos.Items[2].IsDone = true;
+        }
+    }
+
+    private static void SetPreviewTime(TodoItemViewModel item, int seconds)
+    {
+        item.Item.TimeSpentSeconds = seconds;
+        item.Item.TimerStartedAt = null;
+        item.RefreshTime();
     }
 
     private static void SeedStatistics(StatsStore stats)

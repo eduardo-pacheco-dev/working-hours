@@ -40,6 +40,7 @@ public sealed class AppServices : IDisposable
 
     public void Dispose()
     {
+        Main.Todos.StopAllTracking();
         Tray.Dispose();
         Audio.Dispose();
         Themes.Dispose();

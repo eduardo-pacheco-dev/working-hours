@@ -88,6 +88,27 @@ public sealed class TodoStoreTests : IDisposable
     }
 
     [Fact]
+    public void Update_PersistsTrackedTimeAndCompletion()
+    {
+        var store = CreateStore();
+        var item = store.Add("Preparar orçamento")!;
+        var startedAt = DateTime.Today.AddHours(9);
+        var completedAt = DateTime.Today.AddHours(10);
+
+        item.TimeSpentSeconds = 3725;
+        item.TimerStartedAt = startedAt;
+        item.CompletedAt = completedAt;
+        item.IsDone = true;
+        store.Update(item);
+
+        var reloaded = store.GetAll().Single();
+        Assert.Equal(3725, reloaded.TimeSpentSeconds);
+        Assert.Equal(startedAt, reloaded.TimerStartedAt);
+        Assert.Equal(completedAt, reloaded.CompletedAt);
+        Assert.True(reloaded.IsDone);
+    }
+
+    [Fact]
     public void MissingFile_ReturnsEmptyList()
     {
         var store = CreateStore();

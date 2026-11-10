@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Threading;
 using WorkingHours.Core.Models;
 using WorkingHours.Core.Services;
 using WorkingHours.Infrastructure;
@@ -31,11 +32,82 @@ public sealed class TodoItemViewModel : ObservableObject
             if (Item.IsDone == value)
                 return;
 
-            Item.IsDone = value;
+            if (value)
+            {
+                _owner.StopTracking(this);
+                Item.IsDone = true;
+                Item.CompletedAt = DateTime.Now;
+            }
+            else
+            {
+                Item.IsDone = false;
+                Item.CompletedAt = null;
+            }
+
             _store.Update(Item);
             OnPropertyChanged();
+            OnPropertyChanged(nameof(IsTracking));
+            OnPropertyChanged(nameof(TrackingTooltip));
             _owner.RefreshCounts();
         }
+    }
+
+    public bool IsTracking => Item.TimerStartedAt is not null;
+
+    public int ElapsedSeconds
+    {
+        get
+        {
+            var total = Item.TimeSpentSeconds;
+            if (Item.TimerStartedAt is { } started)
+                total += (int)Math.Max(0, (DateTime.Now - started).TotalSeconds);
+            return total;
+        }
+    }
+
+    public bool HasTime => IsTracking || ElapsedSeconds > 0;
+
+    public string TimeText => FormatTime(ElapsedSeconds);
+
+    public string TrackingTooltip =>
+        IsTracking ? _owner.PauseTrackingText : _owner.StartTrackingText;
+
+    public void RefreshTime()
+    {
+        OnPropertyChanged(nameof(ElapsedSeconds));
+        OnPropertyChanged(nameof(HasTime));
+        OnPropertyChanged(nameof(TimeText));
+        OnPropertyChanged(nameof(IsTracking));
+        OnPropertyChanged(nameof(TrackingTooltip));
+    }
+
+    internal void StartTimer()
+    {
+        Item.TimerStartedAt = DateTime.Now;
+        RefreshTime();
+    }
+
+    /// <summary>Accumulates the current interval and pauses the stopwatch.</summary>
+    internal void StopTimer()
+    {
+        if (Item.TimerStartedAt is not { } started)
+        {
+            RefreshTime();
+            return;
+        }
+
+        var elapsed = (int)Math.Max(0, (DateTime.Now - started).TotalSeconds);
+        Item.TimeSpentSeconds += elapsed;
+        Item.TimerStartedAt = null;
+        RefreshTime();
+    }
+
+    private static string FormatTime(int seconds)
+    {
+        var time = TimeSpan.FromSeconds(Math.Max(0, seconds));
+        return time.TotalHours >= 1
+            ? $"{(int)time.TotalHours}:{time.Minutes:00}:{time.Seconds:00}"
+            : $"{time.Minutes:00}:{time.Seconds:00}";
     }
 }
 
@@ -44,6 +116,8 @@ public sealed class TodoViewModel : ObservableObject
 {
     private readonly TodoStore _store;
     private readonly LocalizationService _loc;
+    private readonly DispatcherTimer _clock = new() { Interval = TimeSpan.FromSeconds(1) };
+    private TodoItemViewModel? _trackedItem;
     private string _newTodoText = string.Empty;
 
     public TodoViewModel(TodoStore store, LocalizationService loc)
@@ -52,7 +126,15 @@ public sealed class TodoViewModel : ObservableObject
         _loc = loc;
 
         foreach (var item in store.GetAll())
+        {
+            // A stopwatch is only authoritative while the app is running.
+            if (item.TimerStartedAt is not null)
+            {
+                item.TimerStartedAt = null;
+                store.Update(item);
+            }
             Items.Add(new TodoItemViewModel(item, store, this));
+        }
 
         AddCommand = new RelayCommand(AddTask, () => !string.IsNullOrWhiteSpace(NewTodoText));
         DeleteCommand = new RelayCommand(parameter =>
@@ -60,8 +142,14 @@ public sealed class TodoViewModel : ObservableObject
             if (parameter is TodoItemViewModel item)
                 DeleteTask(item);
         });
+        ToggleTrackingCommand = new RelayCommand(parameter =>
+        {
+            if (parameter is TodoItemViewModel item)
+                ToggleTracking(item);
+        });
         ClearCompletedCommand = new RelayCommand(ClearCompleted, () => HasCompleted);
 
+        _clock.Tick += (_, _) => _trackedItem?.RefreshTime();
         _loc.LanguageChanged += OnLanguageChanged;
     }
 
@@ -69,6 +157,7 @@ public sealed class TodoViewModel : ObservableObject
 
     public ICommand AddCommand { get; }
     public ICommand DeleteCommand { get; }
+    public ICommand ToggleTrackingCommand { get; }
     public ICommand ClearCompletedCommand { get; }
 
     public string NewTodoText
@@ -99,6 +188,9 @@ public sealed class TodoViewModel : ObservableObject
         }
     }
 
+    internal string StartTrackingText => _loc["StartTimer"];
+    internal string PauseTrackingText => _loc["PauseTimer"];
+
     public void AddTask(string text)
     {
         var item = _store.Add(text);
@@ -115,8 +207,55 @@ public sealed class TodoViewModel : ObservableObject
         AddTask(NewTodoText);
     }
 
+    private void ToggleTracking(TodoItemViewModel item)
+    {
+        if (item.IsDone)
+            return;
+
+        if (ReferenceEquals(_trackedItem, item))
+        {
+            StopTracking(item);
+            return;
+        }
+
+        StopTracking(_trackedItem);
+        item.StartTimer();
+        _store.Update(item.Item);
+        _trackedItem = item;
+        _clock.Start();
+    }
+
+    /// <summary>Stops the given task stopwatch and persists the accumulated time.</summary>
+    public void StopTracking(TodoItemViewModel? item)
+    {
+        if (item is null)
+            return;
+
+        var wasTracking = item.IsTracking;
+        item.StopTimer();
+
+        if (wasTracking)
+            _store.Update(item.Item);
+
+        if (ReferenceEquals(_trackedItem, item))
+        {
+            _trackedItem = null;
+            _clock.Stop();
+        }
+    }
+
+    /// <summary>Called on application exit so the running interval is not lost.</summary>
+    public void StopAllTracking()
+    {
+        StopTracking(_trackedItem);
+        _clock.Stop();
+    }
+
     private void DeleteTask(TodoItemViewModel item)
     {
+        if (!item.IsDone)
+            StopTracking(item);
+
         _store.Delete(item.Item.Id);
         Items.Remove(item);
         RefreshCounts();
@@ -142,6 +281,10 @@ public sealed class TodoViewModel : ObservableObject
         (ClearCompletedCommand as RelayCommand)?.RaiseCanExecuteChanged();
     }
 
-    private void OnLanguageChanged(object? sender, EventArgs e) =>
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
         OnPropertyChanged(nameof(RemainingText));
+        foreach (var item in Items)
+            item.RefreshTime();
+    }
 }

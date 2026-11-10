@@ -60,6 +60,9 @@ public sealed class TodoStore
 
             items[index].Text = item.Text;
             items[index].IsDone = item.IsDone;
+            items[index].TimeSpentSeconds = item.TimeSpentSeconds;
+            items[index].TimerStartedAt = item.TimerStartedAt;
+            items[index].CompletedAt = item.CompletedAt;
             WriteLocked(items);
         }
     }

@@ -40,6 +40,8 @@ public sealed class LocalizationService
         ["NoTasks"] = "No tasks yet. Add the first one.",
         ["ClearCompleted"] = "Clear completed",
         ["DeleteTask"] = "Delete task",
+        ["StartTimer"] = "Start task stopwatch",
+        ["PauseTimer"] = "Pause task stopwatch",
         ["AllDone"] = "All done",
         ["RemainingOne"] = "1 pending",
         ["RemainingMany"] = "{0} pending",
@@ -52,7 +54,6 @@ public sealed class LocalizationService
         ["Volume"] = "Volume",
         ["ShowWindow"] = "Show Working Hours",
         ["Exit"] = "Exit",
-        ["PauseTimer"] = "Pause timer",
         ["ResumeTimer"] = "Resume timer",
 
         ["FocusCompleteTitle"] = "Focus round complete",
@@ -160,6 +161,8 @@ public sealed class LocalizationService
         ["NoTasks"] = "Nenhuma tarefa ainda. Adicione a primeira.",
         ["ClearCompleted"] = "Limpar concluídas",
         ["DeleteTask"] = "Excluir tarefa",
+        ["StartTimer"] = "Iniciar cronômetro da tarefa",
+        ["PauseTimer"] = "Pausar cronômetro da tarefa",
         ["AllDone"] = "Tudo em dia",
         ["RemainingOne"] = "1 pendente",
         ["RemainingMany"] = "{0} pendentes",
@@ -172,7 +175,6 @@ public sealed class LocalizationService
         ["Volume"] = "Volume",
         ["ShowWindow"] = "Mostrar Working Hours",
         ["Exit"] = "Sair",
-        ["PauseTimer"] = "Pausar timer",
         ["ResumeTimer"] = "Continuar timer",
 
         ["FocusCompleteTitle"] = "Rodada de foco concluída",
