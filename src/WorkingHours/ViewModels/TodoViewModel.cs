@@ -225,6 +225,23 @@ public sealed class TodoViewModel : ObservableObject
         _clock.Start();
     }
 
+    /// <summary>
+    /// Starts the first pending task when the main timer starts, unless the user
+    /// is already tracking a task manually.
+    /// </summary>
+    public void StartFirstPendingTracking()
+    {
+        if (_trackedItem is not null)
+            return;
+
+        var first = Items.FirstOrDefault(i => !i.IsDone);
+        if (first is not null)
+            ToggleTracking(first);
+    }
+
+    /// <summary>Pauses the task that is currently tracking, if any.</summary>
+    public void StopActiveTracking() => StopTracking(_trackedItem);
+
     /// <summary>Stops the given task stopwatch and persists the accumulated time.</summary>
     public void StopTracking(TodoItemViewModel? item)
     {

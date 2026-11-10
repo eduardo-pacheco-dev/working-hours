@@ -49,6 +49,7 @@ A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o rel�
 - Clique no círculo para concluir/desmarcar; o texto concluído fica riscado.
 - Use o `▶` da tarefa para iniciar o **cronômetro** e `❚❚` para pausar. Só uma tarefa fica em contagem por vez.
 - O tempo acumulado aparece abaixo do texto e continua visível depois de concluir, mostrando **quanto tempo você levou** naquela tarefa.
+- Ao **iniciar o foco do timer principal**, o cronômetro da primeira tarefa pendente começa junto; ao **pausar** ou entrar em uma pausa, ele para também. Se você já estiver cronometrando outra tarefa manualmente, ela é preservada. Assim, apenas o tempo de foco entra na tarefa.
 - Ao marcar como concluída, o cronômetro é parado e o tempo é gravado; ao sair do app, o intervalo em andamento também é salvo.
 - **Arraste** a tarefa pelo ícone de pontos (ou pela própria linha) para cima/baixo. Uma **cópia translúcida da tarefa acompanha o mouse** e uma linha verde indica onde ela será solta. A nova ordem é salva em `todos.json`.
 - Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.

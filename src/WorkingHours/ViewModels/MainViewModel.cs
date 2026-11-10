@@ -35,6 +35,7 @@ public sealed class MainViewModel : ObservableObject
     private RoundType _round = RoundType.Work;
     private IReadOnlyList<RoundDot> _roundDots = Array.Empty<RoundDot>();
     private int _lastDisplayedSecond = -1;
+    private bool _wasTrackingTask;
 
     public MainViewModel(
         SettingsManager settingsManager,
@@ -240,9 +241,22 @@ public sealed class MainViewModel : ObservableObject
 
     private void UpdateTimerState()
     {
-        IsRunning = _engine.IsRunning;
-        IsPaused = _engine.IsPaused;
+        var running = _engine.IsRunning;
         Round = _engine.CurrentRound;
+
+        // The task stopwatch follows focus rounds only, so breaks do not count.
+        var trackTask = running && Round == RoundType.Work;
+        if (trackTask != _wasTrackingTask)
+        {
+            if (trackTask)
+                Todos.StartFirstPendingTracking();
+            else
+                Todos.StopActiveTracking();
+            _wasTrackingTask = trackTask;
+        }
+
+        IsRunning = running;
+        IsPaused = _engine.IsPaused;
 
         var remaining = _engine.Remaining;
         var seconds = Math.Max(0, (int)Math.Ceiling(remaining.TotalSeconds));
