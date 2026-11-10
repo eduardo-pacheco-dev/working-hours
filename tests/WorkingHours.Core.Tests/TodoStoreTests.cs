@@ -109,6 +109,34 @@ public sealed class TodoStoreTests : IDisposable
     }
 
     [Fact]
+    public void Reorder_PersistsManualOrder()
+    {
+        var store = CreateStore();
+        var first = store.Add("Primeira")!;
+        var second = store.Add("Segunda")!;
+        var third = store.Add("Terceira")!;
+
+        store.Reorder(new[] { third.Id, first.Id, second.Id });
+
+        var reloaded = store.GetAll();
+        Assert.Equal(new[] { "Terceira", "Primeira", "Segunda" }, reloaded.Select(t => t.Text));
+    }
+
+    [Fact]
+    public void Reorder_KeepsTasksMissingFromTheListAtTheEnd()
+    {
+        var store = CreateStore();
+        var first = store.Add("Primeira")!;
+        store.Add("Segunda");
+        var third = store.Add("Terceira")!;
+
+        store.Reorder(new[] { third.Id, first.Id });
+
+        var reloaded = store.GetAll();
+        Assert.Equal(new[] { "Terceira", "Primeira", "Segunda" }, reloaded.Select(t => t.Text));
+    }
+
+    [Fact]
     public void MissingFile_ReturnsEmptyList()
     {
         var store = CreateStore();

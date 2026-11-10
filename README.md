@@ -22,7 +22,7 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Português e inglês**, detectados automaticamente pelo idioma do Windows.
 - **Modo compacto** automático quando a janela fica pequena.
 - **Mini relógio flutuante**, sempre sobre todas as janelas, com controles, arraste e posição lembrada.
-- **Lista de tarefas** em uma sidebar que desliza para fora à esquerda, com adição rápida, conclusão, exclusão, persistência e **cronômetro por tarefa**.
+- **Lista de tarefas** em uma sidebar que desliza para fora à esquerda, com adição rápida, conclusão, exclusão, **reordenação por arraste**, persistência e **cronômetro por tarefa**.
 - **Sempre no topo**, dados 100% locais e nenhuma telemetria.
 
 | Tema escuro | Modo compacto |
@@ -48,6 +48,7 @@ A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o rel�
 - Use o `▶` da tarefa para iniciar o **cronômetro** e `❚❚` para pausar. Só uma tarefa fica em contagem por vez.
 - O tempo acumulado aparece abaixo do texto e continua visível depois de concluir, mostrando **quanto tempo você levou** naquela tarefa.
 - Ao marcar como concluída, o cronômetro é parado e o tempo é gravado; ao sair do app, o intervalo em andamento também é salvo.
+- **Arraste** a tarefa pelo ícone de pontos (ou pela própria linha) para cima/baixo. A nova ordem é salva em `todos.json`.
 - Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.
 - Tudo é salvo em `todos.json` e recarregado na próxima execução.
 - O contador no botão da barra mostra quantas tarefas ainda estão pendentes.

@@ -269,6 +269,20 @@ public sealed class TodoViewModel : ObservableObject
         RefreshCounts();
     }
 
+    /// <summary>Moves a task in the list and persists the new manual order.</summary>
+    public void MoveTask(int oldIndex, int newIndex)
+    {
+        if (oldIndex < 0 || oldIndex >= Items.Count)
+            return;
+
+        newIndex = Math.Clamp(newIndex, 0, Items.Count - 1);
+        if (oldIndex == newIndex)
+            return;
+
+        Items.Move(oldIndex, newIndex);
+        _store.Reorder(Items.Select(i => i.Item.Id).ToList());
+    }
+
     public void RefreshCounts()
     {
         OnPropertyChanged(nameof(HasItems));

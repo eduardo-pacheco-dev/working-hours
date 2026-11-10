@@ -20,10 +20,27 @@ public sealed class TodoStore
     {
         lock (_gate)
         {
-            return ReadLocked()
-                .OrderBy(t => t.CreatedAt)
-                .ThenBy(t => t.Text, StringComparer.CurrentCultureIgnoreCase)
-                .ToList();
+            return ReadLocked().ToList();
+        }
+    }
+
+    /// <summary>Persists a manual order; any task missing from the list stays at the end.</summary>
+    public void Reorder(IReadOnlyList<Guid> orderedIds)
+    {
+        lock (_gate)
+        {
+            var items = ReadLocked();
+            var remaining = items.ToDictionary(t => t.Id);
+            var reordered = new List<TodoItem>(items.Count);
+
+            foreach (var id in orderedIds)
+            {
+                if (remaining.Remove(id, out var item))
+                    reordered.Add(item);
+            }
+
+            reordered.AddRange(items.Where(t => remaining.ContainsKey(t.Id)));
+            WriteLocked(reordered);
         }
     }
 
