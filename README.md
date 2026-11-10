@@ -23,6 +23,7 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Modo compacto** automático quando a janela fica pequena.
 - **Mini relógio flutuante**, sempre sobre todas as janelas, com controles, arraste e posição lembrada.
 - **Lista de tarefas** em uma sidebar que desliza para fora à esquerda, com adição rápida, conclusão, exclusão, **reordenação por arraste**, persistência e **cronômetro por tarefa**.
+- **Salvamento automático** a cada 15 segundos, inclusive do cronômetro de tarefa em andamento, ao fechar e no logoff do Windows.
 - **Sempre no topo**, dados 100% locais e nenhuma telemetria.
 
 | Tema escuro | Modo compacto |
@@ -162,9 +163,11 @@ Tudo fica em `%APPDATA%\WorkingHours`:
 ```
 settings.json     preferências
 sessions.json     histórico de sessões concluídas
-todos.json        lista de tarefas
+todos.json        lista de tarefas e tempos acumulados
 themes\           seus temas (.json)
 error.log         log de falhas inesperadas
+
+As tarefas, o cronômetro em andamento, as preferências e a posição/tamanho da janela são salvos automaticamente a cada **15 segundos**, além de serem gravados ao fechar, minimizar para a bandeja, entrar no modo mini e durante o logoff/desligamento do Windows.
 ```
 
 Para criar um tema, salve um arquivo em `%APPDATA%\WorkingHours\themes` usando o mesmo formato do Pomotroid:

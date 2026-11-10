@@ -33,6 +33,7 @@ public partial class MainWindow : Window
         _vm = services.Main;
         DataContext = _vm;
         TodoSidebarView.DataContext = _vm.Todos;
+        _services.AutoSave.Register("window-bounds", PersistWindowBounds);
 
         RestoreWindowBounds();
         TaskbarItemInfo = new TaskbarItemInfo { ProgressState = TaskbarItemProgressState.None };
@@ -89,6 +90,7 @@ public partial class MainWindow : Window
         mini.Closed += OnMiniClosed;
 
         _miniWindow = mini;
+        _services.AutoSave.Flush();
         Hide();
         mini.Show();
     }
@@ -370,7 +372,10 @@ public partial class MainWindow : Window
 
         var settings = _services.Settings.Current;
         if (settings.MinimizeToTray && settings.TrayIconEnabled)
+        {
+            _services.AutoSave.Flush();
             Hide();
+        }
     }
 
     private void OnWindowSizeChanged(object sender, SizeChangedEventArgs e)
@@ -405,6 +410,7 @@ public partial class MainWindow : Window
         _services.Themes.ThemeApplied -= OnThemeApplied;
         _services.Settings.Changed -= OnSettingsChanged;
         _services.Tray.MiniRequested -= OnMiniRequested;
+        _services.AutoSave.Unregister("window-bounds");
         CloseMini(suppressRestore: true);
         _hotkeys.Dispose();
     }
@@ -432,6 +438,16 @@ public partial class MainWindow : Window
                 Top = y;
             }
         }
+    }
+
+    /// <summary>Periodic auto-save hook: persists the current normal window bounds.</summary>
+    public void PersistWindowBounds()
+    {
+        if (!IsLoaded || WindowState != WindowState.Normal)
+            return;
+
+        SaveWindowBounds();
+        _services.Settings.SaveWithoutNotify();
     }
 
     private void SaveWindowBounds(bool subtractSidebar = false)

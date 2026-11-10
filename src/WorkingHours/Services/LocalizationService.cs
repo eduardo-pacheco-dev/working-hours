@@ -109,6 +109,7 @@ public sealed class LocalizationService
         ["OpenDataFolder"] = "Open folder",
         ["Version"] = "Version {0}",
         ["AboutText"] = "A native Windows take on the Pomodoro Technique. All data stays on this computer.",
+        ["AutoSaveHint"] = "Everything is saved automatically every 15 seconds, including the running task stopwatch.",
         ["License"] = "MIT License · inspired by Pomotroid",
 
         ["Today"] = "Today",
@@ -231,6 +232,7 @@ public sealed class LocalizationService
         ["OpenDataFolder"] = "Abrir pasta",
         ["Version"] = "Versão {0}",
         ["AboutText"] = "Uma versão nativa para Windows da Técnica Pomodoro. Todos os dados ficam neste computador.",
+        ["AutoSaveHint"] = "Tudo é salvo automaticamente a cada 15 segundos, inclusive o cronômetro da tarefa em andamento.",
         ["License"] = "Licença MIT · inspirado no Pomotroid",
 
         ["Today"] = "Hoje",

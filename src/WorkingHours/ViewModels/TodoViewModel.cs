@@ -261,6 +261,25 @@ public sealed class TodoViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Folds the current interval into the task and keeps the stopwatch running.
+    /// Used by the periodic auto-save so a crash loses at most one interval.
+    /// </summary>
+    public void CheckpointTracking()
+    {
+        if (_trackedItem?.Item.TimerStartedAt is not { } started)
+            return;
+
+        var elapsed = (int)Math.Max(0, (DateTime.Now - started).TotalSeconds);
+        if (elapsed <= 0)
+            return;
+
+        _trackedItem.Item.TimeSpentSeconds += elapsed;
+        _trackedItem.Item.TimerStartedAt = DateTime.Now;
+        _store.Update(_trackedItem.Item);
+        _trackedItem.RefreshTime();
+    }
+
     /// <summary>Called on application exit so the running interval is not lost.</summary>
     public void StopAllTracking()
     {
