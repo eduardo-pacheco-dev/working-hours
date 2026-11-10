@@ -22,6 +22,7 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Português e inglês**, detectados automaticamente pelo idioma do Windows.
 - **Modo compacto** automático quando a janela fica pequena.
 - **Mini relógio flutuante**, sempre sobre todas as janelas, com controles, arraste e posição lembrada.
+- **Lista de tarefas** em uma sidebar que desliza para fora à esquerda, com adição rápida, conclusão, exclusão e persistência.
 - **Sempre no topo**, dados 100% locais e nenhuma telemetria.
 
 | Tema escuro | Modo compacto |
@@ -35,6 +36,18 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 Clique no botão de mini janela na barra de título, use o menu da bandeja ou pressione `F9`. O relógio compacto fica **acima de todas as janelas**, pode ser arrastado para qualquer canto da tela e continua sincronizado com o timer principal. A posição é lembrada entre execuções.
 
 O botão de expandir (ou `Esc`) volta para a janela completa; o `X` também restaura a janela principal.
+
+## Tarefas
+
+![Sidebar de tarefas](docs/screenshots/main-tasks.png)
+
+A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o relógio. Use o botão de lista na barra de título, o atalho `T` ou o botão de fechar da própria sidebar.
+
+- Digite a tarefa e pressione `Enter` (ou clique em **+**) para adicionar.
+- Clique no círculo para concluir/desmarcar; o texto concluído fica riscado.
+- Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.
+- Tudo é salvo em `todos.json` e recarregado na próxima execução.
+- O contador no botão da barra mostra quantas tarefas ainda estão pendentes.
 
 ## Estatísticas
 
@@ -126,6 +139,7 @@ Os testes cobrem a sequência de rodadas (incluindo pausas desativadas), os cál
 | `R` | Reiniciar ciclo |
 | `→` ou `S` | Pular rodada |
 | `M` | Mudo |
+| `T` | Abrir / fechar a sidebar de tarefas |
 | `F9` | Alternar mini relógio / janela completa |
 | `F11` | Tela cheia |
 | `Esc` | Sair do mini relógio (quando ele está em foco) |
@@ -141,6 +155,7 @@ Tudo fica em `%APPDATA%\WorkingHours`:
 ```
 settings.json     preferências
 sessions.json     histórico de sessões concluídas
+todos.json        lista de tarefas
 themes\           seus temas (.json)
 error.log         log de falhas inesperadas
 ```

@@ -1,0 +1,220 @@
+<UserControl x:Class="WorkingHours.Views.TodoSidebar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="{DynamicResource AppFont}" FontSize="13"
+             PreviewKeyDown="Root_PreviewKeyDown">
+    <UserControl.Resources>
+        <Style x:Key="TodoCheck" TargetType="{x:Type CheckBox}">
+            <Setter Property="Width" Value="20" />
+            <Setter Property="Height" Value="20" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type CheckBox}">
+                        <Grid Width="20" Height="20" Background="Transparent">
+                            <Ellipse x:Name="Circle" Width="18" Height="18"
+                                     Stroke="{DynamicResource ForegroundDarkerBrush}" StrokeThickness="1.4" />
+                            <Path x:Name="Check" Data="M 4 9 L 7.5 12.5 L 14 5"
+                                  Stroke="{DynamicResource OnAccentBrush}" StrokeThickness="1.8"
+                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                                  Visibility="Collapsed" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Circle" Property="Fill" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Circle" Property="Stroke" Value="{DynamicResource AccentBrush}" />
+                                <Setter TargetName="Check" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Circle" Property="Stroke" Value="{DynamicResource AccentBrush}" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AddTaskButton" TargetType="{x:Type Button}">
+            <Setter Property="Width" Value="38" />
+            <Setter Property="Height" Value="38" />
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentBrush}" />
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="19">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.88" />
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource BackgroundLightBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="52" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Grid Grid.Row="0" Margin="16,0,10,0">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <Path Data="M 1 1 L 4 1 L 4 4 L 1 4 Z M 1 6 L 4 6 L 4 9 L 1 9 Z M 1 11 L 4 11 L 4 14 L 1 14 Z M 6 2.5 L 15 2.5 M 6 7.5 L 15 7.5 M 6 12.5 L 15 12.5"
+                      Stroke="{DynamicResource ForegroundDarkerBrush}" StrokeThickness="1.3"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round"
+                      StrokeLineJoin="Round" VerticalAlignment="Center" />
+                <TextBlock Text="{DynamicResource L.Tasks}" FontSize="14" FontWeight="SemiBold"
+                           Margin="8,0,0,0" VerticalAlignment="Center" />
+            </StackPanel>
+
+            <Button Style="{StaticResource IconButton}" HorizontalAlignment="Right"
+                    VerticalAlignment="Center" Padding="6" Click="Close_Click"
+                    ToolTip="{DynamicResource L.Close}"
+                    AutomationProperties.Name="{DynamicResource L.Close}">
+                <Path Data="M 2 2 L 10 10 M 10 2 L 2 10"
+                      Stroke="{DynamicResource ForegroundDarkerBrush}" StrokeThickness="1.3"
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+            </Button>
+        </Grid>
+
+        <!-- New task -->
+        <Grid Grid.Row="1" Margin="14,8,14,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Grid>
+                <TextBox x:Name="NewTaskBox" MaxLength="240"
+                         Text="{Binding NewTodoText, UpdateSourceTrigger=PropertyChanged}"
+                         KeyDown="NewTaskBox_KeyDown" />
+                <TextBlock Text="{DynamicResource L.NewTaskPlaceholder}"
+                           Margin="11,0" VerticalAlignment="Center"
+                           Foreground="{DynamicResource ForegroundDarkestBrush}"
+                           IsHitTestVisible="False" FontSize="12">
+                    <TextBlock.Style>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Visibility" Value="Collapsed" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Text, ElementName=NewTaskBox}" Value="">
+                                    <Setter Property="Visibility" Value="Visible" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </Grid>
+
+            <Button Grid.Column="1" Style="{StaticResource AddTaskButton}" Margin="8,0,0,0"
+                    Command="{Binding AddCommand}" ToolTip="{DynamicResource L.AddTask}"
+                    AutomationProperties.Name="{DynamicResource L.AddTask}">
+                <Path Data="M 8 2 L 8 14 M 2 8 L 14 8"
+                      Stroke="{Binding Foreground, RelativeSource={RelativeSource AncestorType=Button}}"
+                      StrokeThickness="1.8" StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+            </Button>
+        </Grid>
+
+        <!-- Task list -->
+        <Grid Grid.Row="2" Margin="8,4,4,4">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="4,0,4,6">
+                <ItemsControl ItemsSource="{Binding Items}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Padding="5" CornerRadius="8" Margin="0,2">
+                                <Border.Style>
+                                    <Style TargetType="{x:Type Border}">
+                                        <Setter Property="Background" Value="Transparent" />
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource BackgroundBrush}" />
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox Style="{StaticResource TodoCheck}"
+                                              IsChecked="{Binding IsDone, Mode=TwoWay}"
+                                              VerticalAlignment="Top" Margin="2,2,8,0" />
+
+                                    <TextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap"
+                                               FontSize="12.5" Margin="0,1,6,0">
+                                        <TextBlock.Style>
+                                            <Style TargetType="{x:Type TextBlock}">
+                                                <Setter Property="Foreground" Value="{DynamicResource ForegroundBrush}" />
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                        <Setter Property="TextDecorations" Value="Strikethrough" />
+                                                        <Setter Property="Foreground" Value="{DynamicResource ForegroundDarkerBrush}" />
+                                                        <Setter Property="Opacity" Value="0.6" />
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <Button Grid.Column="2" Style="{StaticResource IconButton}" Padding="4"
+                                            VerticalAlignment="Top"
+                                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            ToolTip="{DynamicResource L.DeleteTask}"
+                                            AutomationProperties.Name="{DynamicResource L.DeleteTask}">
+                                        <Path Data="M 2 2 L 8 8 M 8 2 L 2 8"
+                                              Stroke="{DynamicResource ForegroundDarkerBrush}" StrokeThickness="1.3"
+                                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" />
+                                    </Button>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+
+            <TextBlock Text="{DynamicResource L.NoTasks}" Width="190"
+                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                       TextAlignment="Center" TextWrapping="Wrap" FontSize="12"
+                       Foreground="{DynamicResource ForegroundDarkerBrush}">
+                <TextBlock.Style>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Visibility" Value="Collapsed" />
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasItems}" Value="False">
+                                <Setter Property="Visibility" Value="Visible" />
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="3" BorderBrush="{DynamicResource BackgroundLightestBrush}"
+                BorderThickness="0,1,0,0" Padding="16,10">
+            <Grid>
+                <TextBlock Text="{Binding RemainingText}" FontSize="11" VerticalAlignment="Center"
+                           Foreground="{DynamicResource ForegroundDarkerBrush}" />
+                <Button Content="{DynamicResource L.ClearCompleted}"
+                        Command="{Binding ClearCompletedCommand}"
+                        Style="{StaticResource SecondaryButton}"
+                        Padding="10,5" FontSize="11" HorizontalAlignment="Right" />
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

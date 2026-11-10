@@ -42,6 +42,7 @@ public sealed class MainViewModel : ObservableObject
         AudioService audio,
         TrayService tray,
         NotificationService notifications,
+        TodoStore todoStore,
         LocalizationService loc)
     {
         _settingsManager = settingsManager;
@@ -51,6 +52,7 @@ public sealed class MainViewModel : ObservableObject
         _tray = tray;
         _notifications = notifications;
         _loc = loc;
+        Todos = new TodoViewModel(todoStore, loc);
 
         _engine = new PomodoroEngine(_settings);
         _engine.Tick += (_, _) => OnTick();
@@ -78,6 +80,8 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public event EventHandler? AttentionRequested;
+
+    public TodoViewModel Todos { get; }
 
     public ICommand ToggleCommand { get; }
     public ICommand ResetCommand { get; }

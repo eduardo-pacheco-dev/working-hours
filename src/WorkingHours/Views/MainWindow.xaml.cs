@@ -4,6 +4,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Shell;
 using WorkingHours.Services;
 using WorkingHours.ViewModels;
@@ -14,9 +15,15 @@ public partial class MainWindow : Window
 {
     private readonly AppServices _services;
     private readonly MainViewModel _vm;
+    private const double TodoSidebarWidth = 280;
+
     private readonly HotkeyService _hotkeys = new();
     private MiniTimerWindow? _miniWindow;
     private bool _suppressMiniClose;
+    private bool _todoOpen;
+    private double _todoGrow;
+    private double _todoShift;
+    private bool _todoAnimating;
     private bool _forceClose;
 
     public MainWindow(AppServices services)
@@ -25,6 +32,7 @@ public partial class MainWindow : Window
         _services = services;
         _vm = services.Main;
         DataContext = _vm;
+        TodoSidebarView.DataContext = _vm.Todos;
 
         RestoreWindowBounds();
         TaskbarItemInfo = new TaskbarItemInfo { ProgressState = TaskbarItemProgressState.None };
@@ -115,6 +123,176 @@ public partial class MainWindow : Window
 
     private void OnMiniRequested(object? sender, EventArgs e) => ToggleMiniMode();
 
+    private void Todo_Click(object sender, RoutedEventArgs e) => ToggleTodoSidebar();
+
+    private void TodoSidebar_CloseRequested(object? sender, EventArgs e) => CloseTodoSidebar();
+
+    private void ToggleTodoSidebar()
+    {
+        if (_todoAnimating)
+            return;
+
+        if (_todoOpen)
+            CloseTodoSidebar();
+        else
+            OpenTodoSidebar();
+    }
+
+    private void OpenTodoSidebar(bool animate = true)
+    {
+        if (_todoOpen)
+            return;
+
+        _todoOpen = true;
+        TodoSidebarView.DataContext = _vm.Todos;
+        TodoPanel.Visibility = Visibility.Visible;
+
+        var canResize = WindowState == WindowState.Normal;
+        var grow = canResize ? TodoSidebarWidth : 0;
+        var shift = canResize
+            ? Math.Clamp(Left - SystemParameters.VirtualScreenLeft, 0, grow)
+            : 0;
+        _todoGrow = grow;
+        _todoShift = shift;
+
+        if (!animate)
+        {
+            TodoPanel.Width = TodoSidebarWidth;
+            if (canResize)
+            {
+                Left -= shift;
+                Width += grow;
+            }
+            TodoSidebarView.FocusNewTask();
+            return;
+        }
+
+        var duration = TimeSpan.FromMilliseconds(200);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+        if (canResize)
+        {
+            _todoAnimating = true;
+            var targetLeft = Left - shift;
+            var targetWidth = Width + grow;
+            var leftAnimation = new DoubleAnimation(Left, targetLeft, duration)
+            {
+                EasingFunction = ease
+            };
+            leftAnimation.Completed += (_, _) =>
+            {
+                BeginAnimation(LeftProperty, null);
+                BeginAnimation(WidthProperty, null);
+                Left = targetLeft;
+                Width = targetWidth;
+                _todoAnimating = false;
+            };
+
+            BeginAnimation(LeftProperty, leftAnimation);
+            BeginAnimation(WidthProperty, new DoubleAnimation(Width, targetWidth, duration)
+            {
+                EasingFunction = ease
+            });
+        }
+
+        var panelAnimation = new DoubleAnimation(TodoPanel.ActualWidth, TodoSidebarWidth, duration)
+        {
+            EasingFunction = ease
+        };
+        panelAnimation.Completed += (_, _) =>
+        {
+            if (!_todoOpen)
+                return;
+            TodoPanel.BeginAnimation(WidthProperty, null);
+            TodoPanel.Width = TodoSidebarWidth;
+        };
+        TodoPanel.BeginAnimation(WidthProperty, panelAnimation);
+
+        TodoSidebarView.FocusNewTask();
+    }
+
+    private void CloseTodoSidebar(bool animate = true)
+    {
+        if (!_todoOpen)
+            return;
+
+        _todoOpen = false;
+        var grow = _todoGrow;
+        var shift = _todoShift;
+        _todoGrow = 0;
+        _todoShift = 0;
+
+        if (!animate)
+        {
+            BeginAnimation(LeftProperty, null);
+            BeginAnimation(WidthProperty, null);
+            _todoAnimating = false;
+            if (grow > 0 && WindowState == WindowState.Normal)
+            {
+                Left += shift;
+                Width = Math.Max(MinWidth, Width - grow);
+            }
+
+            TodoPanel.BeginAnimation(WidthProperty, null);
+            TodoPanel.Width = 0;
+            TodoPanel.Visibility = Visibility.Collapsed;
+            return;
+        }
+
+        var duration = TimeSpan.FromMilliseconds(170);
+        var ease = new CubicEase { EasingMode = EasingMode.EaseIn };
+
+        if (grow > 0 && WindowState == WindowState.Normal)
+        {
+            _todoAnimating = true;
+            var targetLeft = Left + shift;
+            var targetWidth = Math.Max(MinWidth, Width - grow);
+            var leftAnimation = new DoubleAnimation(Left, targetLeft, duration)
+            {
+                EasingFunction = ease
+            };
+            leftAnimation.Completed += (_, _) =>
+            {
+                BeginAnimation(LeftProperty, null);
+                BeginAnimation(WidthProperty, null);
+                Left = targetLeft;
+                Width = targetWidth;
+                _todoAnimating = false;
+            };
+
+            BeginAnimation(LeftProperty, leftAnimation);
+            BeginAnimation(WidthProperty, new DoubleAnimation(Width, targetWidth, duration)
+            {
+                EasingFunction = ease
+            });
+        }
+
+        var panelAnimation = new DoubleAnimation(
+            TodoPanel.ActualWidth > 0 ? TodoPanel.ActualWidth : TodoSidebarWidth,
+            0, duration)
+        {
+            EasingFunction = ease
+        };
+        panelAnimation.Completed += (_, _) =>
+        {
+            if (_todoOpen)
+                return;
+            TodoPanel.BeginAnimation(WidthProperty, null);
+            TodoPanel.Width = 0;
+            TodoPanel.Visibility = Visibility.Collapsed;
+        };
+        TodoPanel.BeginAnimation(WidthProperty, panelAnimation);
+    }
+
+    /// <summary>Development helper used by the preview renderer.</summary>
+    public void OpenTodoSidebarForPreview()
+    {
+        _todoOpen = true;
+        TodoSidebarView.DataContext = _vm.Todos;
+        TodoPanel.Visibility = Visibility.Visible;
+        TodoPanel.Width = TodoSidebarWidth;
+    }
+
     private void OnSourceInitialized(object? sender, EventArgs e)
     {
         var handle = new WindowInteropHelper(this).Handle;
@@ -200,7 +378,9 @@ public partial class MainWindow : Window
     private void OnWindowClosing(object? sender, CancelEventArgs e)
     {
         CloseMini(suppressRestore: true);
-        SaveWindowBounds();
+        var sidebarWasOpen = _todoOpen;
+        CloseTodoSidebar(animate: false);
+        SaveWindowBounds(subtractSidebar: sidebarWasOpen && WindowState != WindowState.Normal);
         _services.Settings.SaveWithoutNotify();
 
         var settings = _services.Settings.Current;
@@ -251,16 +431,20 @@ public partial class MainWindow : Window
         }
     }
 
-    private void SaveWindowBounds()
+    private void SaveWindowBounds(bool subtractSidebar = false)
     {
         var bounds = WindowState == WindowState.Normal ? new Rect(Left, Top, Width, Height) : RestoreBounds;
         if (bounds.IsEmpty || bounds.Width < 1 || bounds.Height < 1)
             return;
 
+        var width = subtractSidebar && bounds.Width > TodoSidebarWidth
+            ? bounds.Width - TodoSidebarWidth
+            : bounds.Width;
+
         var settings = _services.Settings.Current;
         settings.WindowX = (int)Math.Round(bounds.Left);
         settings.WindowY = (int)Math.Round(bounds.Top);
-        settings.WindowWidth = (int)Math.Round(bounds.Width);
+        settings.WindowWidth = (int)Math.Round(width);
         settings.WindowHeight = (int)Math.Round(bounds.Height);
     }
 
@@ -292,11 +476,16 @@ public partial class MainWindow : Window
 
     private void OnPreviewKeyDown(object sender, KeyEventArgs e)
     {
-        if (e.KeyboardDevice.Modifiers != ModifierKeys.None)
+        if (e.KeyboardDevice.Modifiers != ModifierKeys.None ||
+            Keyboard.FocusedElement is TextBoxBase)
             return;
 
         switch (e.Key)
         {
+            case Key.T:
+                ToggleTodoSidebar();
+                e.Handled = true;
+                break;
             case Key.Space:
                 _vm.ToggleCommand.Execute(null);
                 e.Handled = true;

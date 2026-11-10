@@ -57,6 +57,11 @@ public static class PreviewRenderer
         var darkMain = new MainWindow(services) { Width = 440, Height = 680 };
         Render(darkMain, Path.Combine(outputDirectory, "main-dark.png"), closeAfter: false);
 
+        SeedTodos(services);
+        var tasks = new MainWindow(services) { Width = 720, Height = 680 };
+        tasks.OpenTodoSidebarForPreview();
+        Render(tasks, Path.Combine(outputDirectory, "main-tasks.png"), closeAfter: false);
+
         File.AppendAllText(Path.Combine(outputDirectory, "preview.log"),
             $"finished {DateTime.Now:O}{Environment.NewLine}");
         // The main window is intentionally left open; the application shuts down next.
@@ -96,6 +101,21 @@ public static class PreviewRenderer
 
         if (!alreadyShown && closeAfter)
             window.Close();
+    }
+
+    private static void SeedTodos(AppServices services)
+    {
+        var todos = services.Main.Todos;
+        if (todos.HasItems)
+            return;
+
+        todos.AddTask("Revisar proposta do cliente");
+        todos.AddTask("Enviar relatório semanal");
+        todos.AddTask("Preparar apresentação de sexta");
+        todos.AddTask("Responder e-mails pendentes");
+
+        if (todos.Items.Count > 2)
+            todos.Items[2].IsDone = true;
     }
 
     private static void SeedStatistics(StatsStore stats)

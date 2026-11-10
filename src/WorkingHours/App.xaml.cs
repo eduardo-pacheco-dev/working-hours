@@ -75,7 +75,8 @@ public partial class App : Application
                 Enabled = settings.Current.NotificationsEnabled
             };
 
-            var main = new MainViewModel(settings, stats, audio, tray, notifications, loc);
+            var todos = new TodoStore(paths);
+            var main = new MainViewModel(settings, stats, audio, tray, notifications, todos, loc);
 
             _services = new AppServices(paths, settings, stats, themes, audio, tray,
                 notifications, loc, main);
