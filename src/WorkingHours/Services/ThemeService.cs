@@ -65,11 +65,33 @@ public sealed class ThemeService : IDisposable
         _builtIns.Clear();
         _custom.Clear();
 
-        var builtInDirectory = Path.Combine(AppContext.BaseDirectory, "Themes");
-        if (Directory.Exists(builtInDirectory))
+        // Built-in themes are embedded so the standalone executable is complete.
+        var assembly = typeof(ThemeService).Assembly;
+        foreach (var resource in assembly.GetManifestResourceNames()
+                     .Where(n => n.Contains(".Themes.", StringComparison.OrdinalIgnoreCase) &&
+                                 n.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                     .OrderBy(n => n, StringComparer.OrdinalIgnoreCase))
         {
-            foreach (var file in Directory.EnumerateFiles(builtInDirectory, "*.json"))
-                TryLoadTheme(file, false);
+            try
+            {
+                using var stream = assembly.GetManifestResourceStream(resource);
+                if (stream is null)
+                    continue;
+
+                using var reader = new StreamReader(stream);
+                var theme = JsonSerializer.Deserialize<ThemeDefinition>(reader.ReadToEnd(), JsonDefaults.Options);
+                if (theme is null || string.IsNullOrWhiteSpace(theme.Name) || theme.Colors.Count == 0)
+                    continue;
+
+                theme.IsCustom = false;
+                theme.FilePath = resource;
+                theme.IsLight = GuessIsLight(theme);
+                _builtIns.Add(theme);
+            }
+            catch (Exception ex) when (ex is IOException or JsonException)
+            {
+                // A malformed embedded theme must never prevent startup.
+            }
         }
 
         if (Directory.Exists(_paths.ThemesDirectory))

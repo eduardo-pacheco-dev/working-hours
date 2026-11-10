@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Themes\*.json" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="Themes\*.json" />
   </ItemGroup>
 
 </Project>
