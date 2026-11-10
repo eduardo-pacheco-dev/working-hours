@@ -7,8 +7,10 @@ public static class WindowEffects
 {
     private const int DwmwaUseImmersiveDarkMode = 20;
     private const int DwmwaWindowCornerPreference = 33;
-    private const int DwmaBorderColor = 34;
     private const int CornerRound = 2;
+    private const int GwlExStyle = -20;
+    private const long WsExToolWindow = 0x00000080L;
+    private const long WsExAppWindow = 0x00040000L;
 
     public static void ApplyRoundedCorners(IntPtr hwnd)
     {
@@ -33,6 +35,21 @@ public static class WindowEffects
         catch
         {
             // Older Windows builds ignore this attribute.
+        }
+    }
+
+    /// <summary>Keeps the mini overlay out of Alt+Tab while still showing it on screen.</summary>
+    public static void HideFromAltTab(IntPtr hwnd)
+    {
+        try
+        {
+            var style = GetWindowLongPtr(hwnd, GwlExStyle).ToInt64();
+            style = (style | WsExToolWindow) & ~WsExAppWindow;
+            SetWindowLongPtr(hwnd, GwlExStyle, new IntPtr(style));
+        }
+        catch
+        {
+            // Worst case the overlay also shows in Alt+Tab.
         }
     }
 
@@ -64,4 +81,10 @@ public static class WindowEffects
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool FlashWindowEx(ref FlashWindowInfo info);
+
+    [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")]
+    private static extern IntPtr GetWindowLongPtr(IntPtr hwnd, int index);
+
+    [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW")]
+    private static extern IntPtr SetWindowLongPtr(IntPtr hwnd, int index, IntPtr value);
 }

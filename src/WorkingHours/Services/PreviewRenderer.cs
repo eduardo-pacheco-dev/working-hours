@@ -43,6 +43,9 @@ public static class PreviewRenderer
             Render(stats, Path.Combine(outputDirectory, file));
         }
 
+        var mini = new MiniTimerWindow(services, placeOnLoad: false);
+        Render(mini, Path.Combine(outputDirectory, "mini.png"));
+
         var main = new MainWindow(services) { Width = 440, Height = 680 };
         Render(main, Path.Combine(outputDirectory, "main.png"), closeAfter: false);
 

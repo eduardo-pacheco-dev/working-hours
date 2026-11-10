@@ -40,6 +40,14 @@ public sealed class ProgressDial : FrameworkElement
         nameof(IsRunning), typeof(bool), typeof(ProgressDial),
         new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.AffectsRender));
 
+    public static readonly DependencyProperty ShowStatusProperty = DependencyProperty.Register(
+        nameof(ShowStatus), typeof(bool), typeof(ProgressDial),
+        new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
+    public static readonly DependencyProperty ShowTicksProperty = DependencyProperty.Register(
+        nameof(ShowTicks), typeof(bool), typeof(ProgressDial),
+        new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsRender));
+
     public double Progress
     {
         get => (double)GetValue(ProgressProperty);
@@ -82,6 +90,18 @@ public sealed class ProgressDial : FrameworkElement
         set => SetValue(IsRunningProperty, value);
     }
 
+    public bool ShowStatus
+    {
+        get => (bool)GetValue(ShowStatusProperty);
+        set => SetValue(ShowStatusProperty, value);
+    }
+
+    public bool ShowTicks
+    {
+        get => (bool)GetValue(ShowTicksProperty);
+        set => SetValue(ShowTicksProperty, value);
+    }
+
     protected override void OnRender(DrawingContext dc)
     {
         base.OnRender(dc);
@@ -94,7 +114,8 @@ public sealed class ProgressDial : FrameworkElement
         var thickness = Math.Clamp(size * 0.032, 5, 14);
         var radius = size / 2 - thickness - size * 0.075;
 
-        DrawTicks(dc, center, radius, size);
+        if (ShowTicks)
+            DrawTicks(dc, center, radius, size);
 
         var trackColor = LookupBrush("BackgroundLightestBrush", Color.FromRgb(0x9C, 0xA5, 0xB5));
         var track = new Pen(new SolidColorBrush(Color.FromArgb(48, trackColor.R,
@@ -191,9 +212,14 @@ public sealed class ProgressDial : FrameworkElement
             pixelsPerDip);
 
         var timeY = center.Y - timeText.Height / 2;
+        if (ShowStatus)
+            timeY += statusText.Height * 0.35;
+
         dc.DrawText(timeText, new Point(center.X - timeText.Width / 2, timeY));
-        dc.DrawText(statusText, new Point(center.X - statusText.Width / 2,
-            timeY - statusText.Height - size * 0.02));
+
+        if (ShowStatus)
+            dc.DrawText(statusText, new Point(center.X - statusText.Width / 2,
+                timeY - statusText.Height - size * 0.02));
     }
 
     private static PathGeometry BuildArc(Point center, double radius, double fraction)

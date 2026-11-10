@@ -21,11 +21,20 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Som gerado em memória** (sem arquivos externos): alertas de conclusão, tique opcional durante foco/pausa, volume e mudo.
 - **Português e inglês**, detectados automaticamente pelo idioma do Windows.
 - **Modo compacto** automático quando a janela fica pequena.
+- **Mini relógio flutuante**, sempre sobre todas as janelas, com controles, arraste e posição lembrada.
 - **Sempre no topo**, dados 100% locais e nenhuma telemetria.
 
 | Tema escuro | Modo compacto |
 | --- | --- |
 | ![Tema escuro](docs/screenshots/main-dark.png) | ![Modo compacto](docs/screenshots/main-compact.png) |
+
+## Mini relógio
+
+![Mini relógio](docs/screenshots/mini.png)
+
+Clique no botão de mini janela na barra de título, use o menu da bandeja ou pressione `F9`. O relógio compacto fica **acima de todas as janelas**, pode ser arrastado para qualquer canto da tela e continua sincronizado com o timer principal. A posição é lembrada entre execuções.
+
+O botão de expandir (ou `Esc`) volta para a janela completa; o `X` também restaura a janela principal.
 
 ## Estatísticas
 
@@ -117,7 +126,9 @@ Os testes cobrem a sequência de rodadas (incluindo pausas desativadas), os cál
 | `R` | Reiniciar ciclo |
 | `→` ou `S` | Pular rodada |
 | `M` | Mudo |
+| `F9` | Alternar mini relógio / janela completa |
 | `F11` | Tela cheia |
+| `Esc` | Sair do mini relógio (quando ele está em foco) |
 | `Ctrl+F1` | Iniciar / pausar (global, se habilitado) |
 | `Ctrl+F2` | Reiniciar (global, se habilitado) |
 | `Ctrl+F3` | Pular (global, se habilitado) |
