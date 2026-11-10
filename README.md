@@ -18,6 +18,7 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Temas customizados** em JSON com *hot reload* — salve o arquivo e o app atualiza sem reiniciar.
 - **Tema claro/escuro automático** seguindo a preferência do Windows.
 - **Estatísticas** diária, semanal e de todo o período, com sequência atual, melhor dia e mapa de calor de 52 semanas.
+- **Estatísticas de tarefas em aba dedicada** dentro de Estatísticas, com tempo rastreado, concluídas, pendentes, média por tarefa concluída e ranking de tempo por tarefa.
 - **Som gerado em memória** (sem arquivos externos): alertas de conclusão, tique opcional durante foco/pausa, volume e mudo.
 - **Português e inglês**, detectados automaticamente pelo idioma do Windows.
 - **Modo compacto** automático quando a janela fica pequena.
@@ -58,6 +59,22 @@ A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o rel�
 - Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.
 - Tudo é salvo em `todos.json` e recarregado na próxima execução.
 - O contador no botão da barra mostra quantas tarefas ainda estão pendentes.
+
+## Estatísticas de tarefas
+
+![Estatísticas de tarefas](docs/screenshots/task-stats.png)
+
+Abra **Estatísticas** e selecione a aba **Tarefas** no topo da janela. O ícone de gráfico no cabeçalho da sidebar abre essa janela já na aba de tarefas.
+
+A aba mostra:
+
+- tempo total rastreado nas tarefas;
+- número de tarefas concluídas e pendentes;
+- média de tempo das tarefas concluídas;
+- ranking por tempo, com barra proporcional e data de conclusão;
+- filtros **Todas / Pendentes / Concluídas**.
+
+O tempo vem do cronômetro de cada tarefa, incluindo o intervalo em andamento no momento em que o painel é aberto.
 
 ## Estatísticas
 

@@ -35,7 +35,7 @@ public static class PreviewRenderer
                      (StatsRange.AllTime, "stats-alltime.png")
                  })
         {
-            var stats = new StatsWindow(services.Stats, services.Loc, services.Themes, range)
+            var stats = new StatsWindow(services.Stats, services.Main.Todos, services.Loc, services.Themes, range)
             {
                 Width = 720,
                 Height = 700
@@ -55,6 +55,19 @@ public static class PreviewRenderer
         Render(darkMain, Path.Combine(outputDirectory, "main-dark.png"), closeAfter: false);
 
         SeedTodos(services);
+
+        var taskStats = new StatsWindow(
+            services.Stats,
+            services.Main.Todos,
+            services.Loc,
+            services.Themes,
+            initialTab: StatsWindowTab.Tasks)
+        {
+            Width = 720,
+            Height = 700
+        };
+        Render(taskStats, Path.Combine(outputDirectory, "task-stats.png"));
+
         services.Main.Todos.StartFirstPendingTracking();
         var mini = new MiniTimerWindow(services, placeOnLoad: false);
         Render(mini, Path.Combine(outputDirectory, "mini.png"));

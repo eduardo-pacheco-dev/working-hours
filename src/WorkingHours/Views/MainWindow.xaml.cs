@@ -129,6 +129,8 @@ public partial class MainWindow : Window
 
     private void TodoSidebar_CloseRequested(object? sender, EventArgs e) => CloseTodoSidebar();
 
+    private void TodoSidebar_StatsRequested(object? sender, EventArgs e) => ShowStatistics(StatsWindowTab.Tasks);
+
     private void ToggleTodoSidebar()
     {
         if (_todoAnimating)
@@ -543,9 +545,19 @@ public partial class MainWindow : Window
         window.ShowDialog();
     }
 
-    private void Stats_Click(object sender, RoutedEventArgs e)
+    private void Stats_Click(object sender, RoutedEventArgs e) => ShowStatistics(StatsWindowTab.Focus);
+
+    private void ShowStatistics(StatsWindowTab tab)
     {
-        var window = new StatsWindow(_services.Stats, _services.Loc, _services.Themes) { Owner = this };
+        var window = new StatsWindow(
+            _services.Stats,
+            _services.Main.Todos,
+            _services.Loc,
+            _services.Themes,
+            initialTab: tab)
+        {
+            Owner = this
+        };
         window.ShowDialog();
     }
 
