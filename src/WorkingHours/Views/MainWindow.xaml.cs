@@ -293,6 +293,9 @@ public partial class MainWindow : Window
         TodoPanel.Width = TodoSidebarWidth;
     }
 
+    /// <summary>Development helper: renders the drag feedback for the preview.</summary>
+    public void ShowTodoDragPreviewForPreview() => TodoSidebarView.ShowDragPreview();
+
     private void OnSourceInitialized(object? sender, EventArgs e)
     {
         var handle = new WindowInteropHelper(this).Handle;

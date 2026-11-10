@@ -41,6 +41,8 @@ O botão de expandir (ou `Esc`) volta para a janela completa; o `X` também rest
 
 ![Sidebar de tarefas](docs/screenshots/main-tasks.png)
 
+![Arraste com prévia flutuante](docs/screenshots/main-tasks-drag.png)
+
 A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o relógio. Use o botão de lista na barra de título, o atalho `T` ou o botão de fechar da própria sidebar.
 
 - Digite a tarefa e pressione `Enter` (ou clique em **+**) para adicionar.
@@ -48,7 +50,7 @@ A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o rel�
 - Use o `▶` da tarefa para iniciar o **cronômetro** e `❚❚` para pausar. Só uma tarefa fica em contagem por vez.
 - O tempo acumulado aparece abaixo do texto e continua visível depois de concluir, mostrando **quanto tempo você levou** naquela tarefa.
 - Ao marcar como concluída, o cronômetro é parado e o tempo é gravado; ao sair do app, o intervalo em andamento também é salvo.
-- **Arraste** a tarefa pelo ícone de pontos (ou pela própria linha) para cima/baixo. A nova ordem é salva em `todos.json`.
+- **Arraste** a tarefa pelo ícone de pontos (ou pela própria linha) para cima/baixo. Uma **cópia translúcida da tarefa acompanha o mouse** e uma linha verde indica onde ela será solta. A nova ordem é salva em `todos.json`.
 - Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.
 - Tudo é salvo em `todos.json` e recarregado na próxima execução.
 - O contador no botão da barra mostra quantas tarefas ainda estão pendentes.

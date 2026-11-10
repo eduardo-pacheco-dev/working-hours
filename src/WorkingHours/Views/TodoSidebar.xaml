@@ -149,11 +149,9 @@
                      Padding="4,0,4,6"
                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                      ScrollViewer.VerticalScrollBarVisibility="Auto"
-                     AllowDrop="True"
                      PreviewMouseLeftButtonDown="TasksList_PreviewMouseLeftButtonDown"
                      PreviewMouseMove="TasksList_PreviewMouseMove"
-                     DragOver="TasksList_DragOver"
-                     Drop="TasksList_Drop">
+                     PreviewMouseLeftButtonUp="TasksList_PreviewMouseLeftButtonUp">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Border Padding="5" CornerRadius="8" Margin="0,2">
@@ -293,6 +291,19 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
             </ListBox>
+
+            <Canvas x:Name="DropOverlay" Grid.Row="2" Margin="8,4,4,4"
+                    IsHitTestVisible="False" ClipToBounds="True" Panel.ZIndex="5">
+                <Border x:Name="DragGhost" Visibility="Collapsed" Opacity="0.9"
+                        CornerRadius="8" BorderThickness="1"
+                        Background="{DynamicResource BackgroundLightBrush}"
+                        BorderBrush="{DynamicResource BackgroundLightestBrush}"
+                        IsHitTestVisible="False">
+                    <Rectangle x:Name="DragGhostVisual" />
+                </Border>
+                <Border x:Name="DropLine" Height="2" CornerRadius="1"
+                        Background="{DynamicResource AccentBrush}" Visibility="Collapsed" />
+            </Canvas>
 
             <TextBlock Text="{DynamicResource L.NoTasks}" Width="190"
                        HorizontalAlignment="Center" VerticalAlignment="Center"

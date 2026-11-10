@@ -62,6 +62,10 @@ public static class PreviewRenderer
         tasks.OpenTodoSidebarForPreview();
         Render(tasks, Path.Combine(outputDirectory, "main-tasks.png"), closeAfter: false);
 
+        tasks.ShowTodoDragPreviewForPreview();
+        Render(tasks, Path.Combine(outputDirectory, "main-tasks-drag.png"),
+            alreadyShown: true, closeAfter: false);
+
         File.AppendAllText(Path.Combine(outputDirectory, "preview.log"),
             $"finished {DateTime.Now:O}{Environment.NewLine}");
         // The main window is intentionally left open; the application shuts down next.
