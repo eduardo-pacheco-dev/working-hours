@@ -17,6 +17,7 @@ public sealed class TrayService : IDisposable
     private readonly Forms.ToolStripMenuItem _toggleItem;
     private readonly Forms.ToolStripMenuItem _resetItem;
     private readonly Forms.ToolStripMenuItem _skipItem;
+    private readonly Forms.ToolStripMenuItem _miniItem;
     private readonly Forms.ToolStripMenuItem _showItem;
     private readonly Forms.ToolStripMenuItem _exitItem;
     private Icon? _currentIcon;
@@ -27,19 +28,21 @@ public sealed class TrayService : IDisposable
         _toggleItem = new Forms.ToolStripMenuItem("Start / pause");
         _resetItem = new Forms.ToolStripMenuItem("Reset");
         _skipItem = new Forms.ToolStripMenuItem("Skip");
+        _miniItem = new Forms.ToolStripMenuItem("Mini timer");
         _showItem = new Forms.ToolStripMenuItem("Show Working Hours") { Font = new Font("Segoe UI", 9f, FontStyle.Bold) };
         _exitItem = new Forms.ToolStripMenuItem("Exit");
 
         _toggleItem.Click += (_, _) => ToggleRequested?.Invoke(this, EventArgs.Empty);
         _resetItem.Click += (_, _) => ResetRequested?.Invoke(this, EventArgs.Empty);
         _skipItem.Click += (_, _) => SkipRequested?.Invoke(this, EventArgs.Empty);
+        _miniItem.Click += (_, _) => MiniRequested?.Invoke(this, EventArgs.Empty);
         _showItem.Click += (_, _) => ShowRequested?.Invoke(this, EventArgs.Empty);
         _exitItem.Click += (_, _) => ExitRequested?.Invoke(this, EventArgs.Empty);
 
         _menu = new Forms.ContextMenuStrip();
         _menu.Items.AddRange(new Forms.ToolStripItem[]
         {
-            _toggleItem, _resetItem, _skipItem,
+            _toggleItem, _resetItem, _skipItem, _miniItem,
             new Forms.ToolStripSeparator(),
             _showItem, _exitItem
         });
@@ -56,6 +59,7 @@ public sealed class TrayService : IDisposable
     public event EventHandler? ToggleRequested;
     public event EventHandler? ResetRequested;
     public event EventHandler? SkipRequested;
+    public event EventHandler? MiniRequested;
     public event EventHandler? ShowRequested;
     public event EventHandler? ExitRequested;
 
@@ -71,6 +75,7 @@ public sealed class TrayService : IDisposable
         string toggleText,
         string resetText,
         string skipText,
+        string miniText,
         string showText,
         string exitText)
     {
@@ -81,6 +86,7 @@ public sealed class TrayService : IDisposable
         _toggleItem.Text = toggleText;
         _resetItem.Text = resetText;
         _skipItem.Text = skipText;
+        _miniItem.Text = miniText;
         _showItem.Text = showText;
         _exitItem.Text = exitText;
 

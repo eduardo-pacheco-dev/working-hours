@@ -337,6 +337,7 @@ public sealed class MainViewModel : ObservableObject
             toggleText,
             _loc["Reset"],
             _loc["Skip"],
+            _loc["MiniMode"],
             _loc["ShowWindow"],
             _loc["Exit"]);
     }

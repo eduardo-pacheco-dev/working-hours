@@ -15,6 +15,8 @@ public partial class MainWindow : Window
     private readonly AppServices _services;
     private readonly MainViewModel _vm;
     private readonly HotkeyService _hotkeys = new();
+    private MiniTimerWindow? _miniWindow;
+    private bool _suppressMiniClose;
     private bool _forceClose;
 
     public MainWindow(AppServices services)
@@ -31,6 +33,7 @@ public partial class MainWindow : Window
         _vm.AttentionRequested += OnAttentionRequested;
         _services.Themes.ThemeApplied += OnThemeApplied;
         _services.Settings.Changed += OnSettingsChanged;
+        _services.Tray.MiniRequested += OnMiniRequested;
 
         _hotkeys.ToggleRequested += (_, _) => _vm.ToggleCommand.Execute(null);
         _hotkeys.ResetRequested += (_, _) => _vm.ResetCommand.Execute(null);
@@ -38,6 +41,7 @@ public partial class MainWindow : Window
         _hotkeys.RestartRequested += (_, _) => _vm.RestartCommand.Execute(null);
 
         SourceInitialized += OnSourceInitialized;
+        Loaded += (_, _) => WindowStartupLocation = WindowStartupLocation.Manual;
         StateChanged += OnWindowStateChanged;
         SizeChanged += OnWindowSizeChanged;
         Closing += OnWindowClosing;
@@ -45,8 +49,18 @@ public partial class MainWindow : Window
         PreviewKeyDown += OnPreviewKeyDown;
     }
 
-    public void ShowFromTray()
+    public void ShowFromTray() => ShowMainWindow();
+
+    public void CloseForExit()
     {
+        _forceClose = true;
+        Close();
+    }
+
+    private void ShowMainWindow()
+    {
+        CloseMini(suppressRestore: true);
+
         Show();
         if (WindowState == WindowState.Minimized)
             WindowState = WindowState.Normal;
@@ -54,11 +68,52 @@ public partial class MainWindow : Window
         Topmost = _vm.IsPinned;
     }
 
-    public void CloseForExit()
+    private void ToggleMiniMode()
     {
-        _forceClose = true;
-        Close();
+        if (_miniWindow is not null)
+        {
+            RestoreFromMini();
+            return;
+        }
+
+        var mini = new MiniTimerWindow(_services);
+        mini.RestoreRequested += (_, _) => RestoreFromMini();
+        mini.Closed += OnMiniClosed;
+
+        _miniWindow = mini;
+        Hide();
+        mini.Show();
     }
+
+    private void RestoreFromMini()
+    {
+        CloseMini(suppressRestore: true);
+        ShowMainWindow();
+    }
+
+    private void OnMiniClosed(object? sender, EventArgs e)
+    {
+        if (_miniWindow is not null)
+            _miniWindow = null;
+
+        if (!_suppressMiniClose && !_forceClose)
+            ShowMainWindow();
+    }
+
+    private void CloseMini(bool suppressRestore)
+    {
+        var mini = _miniWindow;
+        if (mini is null)
+            return;
+
+        _miniWindow = null;
+        var previous = _suppressMiniClose;
+        _suppressMiniClose = suppressRestore;
+        mini.Close();
+        _suppressMiniClose = previous;
+    }
+
+    private void OnMiniRequested(object? sender, EventArgs e) => ToggleMiniMode();
 
     private void OnSourceInitialized(object? sender, EventArgs e)
     {
@@ -144,6 +199,7 @@ public partial class MainWindow : Window
 
     private void OnWindowClosing(object? sender, CancelEventArgs e)
     {
+        CloseMini(suppressRestore: true);
         SaveWindowBounds();
         _services.Settings.SaveWithoutNotify();
 
@@ -165,6 +221,8 @@ public partial class MainWindow : Window
         _vm.AttentionRequested -= OnAttentionRequested;
         _services.Themes.ThemeApplied -= OnThemeApplied;
         _services.Settings.Changed -= OnSettingsChanged;
+        _services.Tray.MiniRequested -= OnMiniRequested;
+        CloseMini(suppressRestore: true);
         _hotkeys.Dispose();
     }
 
@@ -256,6 +314,10 @@ public partial class MainWindow : Window
                 _vm.ToggleMuteCommand.Execute(null);
                 e.Handled = true;
                 break;
+            case Key.F9:
+                ToggleMiniMode();
+                e.Handled = true;
+                break;
             case Key.F11:
                 WindowState = WindowState == WindowState.Maximized
                     ? WindowState.Normal
@@ -264,6 +326,8 @@ public partial class MainWindow : Window
                 break;
         }
     }
+
+    private void Mini_Click(object sender, RoutedEventArgs e) => ToggleMiniMode();
 
     private void Settings_Click(object sender, RoutedEventArgs e)
     {

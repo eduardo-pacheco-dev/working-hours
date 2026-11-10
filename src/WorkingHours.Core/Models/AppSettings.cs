@@ -23,6 +23,8 @@ public sealed class AppSettings
     public int? WindowY { get; set; }
     public int? WindowWidth { get; set; }
     public int? WindowHeight { get; set; }
+    public int? MiniWindowX { get; set; }
+    public int? MiniWindowY { get; set; }
 
     // Cycle
     public int LongBreakInterval { get; set; } = 4;
