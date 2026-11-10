@@ -15,6 +15,7 @@ public sealed class AppServices : IDisposable
         TrayService tray,
         NotificationService notifications,
         LocalizationService loc,
+        AutoSaveService autoSave,
         MainViewModel main)
     {
         Paths = paths;
@@ -25,6 +26,7 @@ public sealed class AppServices : IDisposable
         Tray = tray;
         Notifications = notifications;
         Loc = loc;
+        AutoSave = autoSave;
         Main = main;
     }
 
@@ -36,10 +38,14 @@ public sealed class AppServices : IDisposable
     public TrayService Tray { get; }
     public NotificationService Notifications { get; }
     public LocalizationService Loc { get; }
+    public AutoSaveService AutoSave { get; }
     public MainViewModel Main { get; }
 
     public void Dispose()
     {
+        AutoSave.Flush();
+        Main.Todos.StopAllTracking();
+        AutoSave.Dispose();
         Tray.Dispose();
         Audio.Dispose();
         Themes.Dispose();

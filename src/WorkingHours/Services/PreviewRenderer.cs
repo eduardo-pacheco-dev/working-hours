@@ -43,9 +43,6 @@ public static class PreviewRenderer
             Render(stats, Path.Combine(outputDirectory, file));
         }
 
-        var mini = new MiniTimerWindow(services, placeOnLoad: false);
-        Render(mini, Path.Combine(outputDirectory, "mini.png"));
-
         var main = new MainWindow(services) { Width = 440, Height = 680 };
         Render(main, Path.Combine(outputDirectory, "main.png"), closeAfter: false);
 
@@ -56,6 +53,20 @@ public static class PreviewRenderer
         services.Themes.Apply(services.Settings.Current);
         var darkMain = new MainWindow(services) { Width = 440, Height = 680 };
         Render(darkMain, Path.Combine(outputDirectory, "main-dark.png"), closeAfter: false);
+
+        SeedTodos(services);
+        services.Main.Todos.StartFirstPendingTracking();
+        var mini = new MiniTimerWindow(services, placeOnLoad: false);
+        Render(mini, Path.Combine(outputDirectory, "mini.png"));
+        services.Main.Todos.StopAllTracking();
+
+        var tasks = new MainWindow(services) { Width = 720, Height = 680 };
+        tasks.OpenTodoSidebarForPreview();
+        Render(tasks, Path.Combine(outputDirectory, "main-tasks.png"), closeAfter: false);
+
+        tasks.ShowTodoDragPreviewForPreview();
+        Render(tasks, Path.Combine(outputDirectory, "main-tasks-drag.png"),
+            alreadyShown: true, closeAfter: false);
 
         File.AppendAllText(Path.Combine(outputDirectory, "preview.log"),
             $"finished {DateTime.Now:O}{Environment.NewLine}");
@@ -96,6 +107,35 @@ public static class PreviewRenderer
 
         if (!alreadyShown && closeAfter)
             window.Close();
+    }
+
+    private static void SeedTodos(AppServices services)
+    {
+        var todos = services.Main.Todos;
+        if (todos.HasItems)
+            return;
+
+        todos.AddTask("Revisar proposta do cliente");
+        todos.AddTask("Enviar relatório semanal");
+        todos.AddTask("Preparar apresentação de sexta");
+        todos.AddTask("Responder e-mails pendentes");
+
+        if (todos.Items.Count > 0)
+            SetPreviewTime(todos.Items[0], 12 * 60 + 34);
+        if (todos.Items.Count > 1)
+            SetPreviewTime(todos.Items[1], 48 * 60);
+        if (todos.Items.Count > 2)
+        {
+            SetPreviewTime(todos.Items[2], 65 * 60 + 20);
+            todos.Items[2].IsDone = true;
+        }
+    }
+
+    private static void SetPreviewTime(TodoItemViewModel item, int seconds)
+    {
+        item.Item.TimeSpentSeconds = seconds;
+        item.Item.TimerStartedAt = null;
+        item.RefreshTime();
     }
 
     private static void SeedStatistics(StatsStore stats)

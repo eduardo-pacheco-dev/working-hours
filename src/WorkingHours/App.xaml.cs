@@ -75,10 +75,13 @@ public partial class App : Application
                 Enabled = settings.Current.NotificationsEnabled
             };
 
-            var main = new MainViewModel(settings, stats, audio, tray, notifications, loc);
+            var todos = new TodoStore(paths);
+            var main = new MainViewModel(settings, stats, audio, tray, notifications, todos, loc);
+            var autoSave = new AutoSaveService();
+            autoSave.Register("tasks", main.Todos.CheckpointTracking);
 
             _services = new AppServices(paths, settings, stats, themes, audio, tray,
-                notifications, loc, main);
+                notifications, loc, autoSave, main);
 
             if (previewMode)
             {
@@ -90,6 +93,7 @@ public partial class App : Application
             _window = new MainWindow(_services);
             MainWindow = _window;
             _window.Show();
+            autoSave.Start();
 
             settings.Changed += OnSettingsChanged;
             tray.ShowRequested += (_, _) => _window?.ShowFromTray();
@@ -188,8 +192,16 @@ public partial class App : Application
         Shutdown();
     }
 
+    protected override void OnSessionEnding(SessionEndingCancelEventArgs e)
+    {
+        _services?.AutoSave.Flush();
+        _services?.Main.Todos.StopAllTracking();
+        base.OnSessionEnding(e);
+    }
+
     protected override void OnExit(ExitEventArgs e)
     {
+        _services?.AutoSave.Flush();
         _showListenerCancellation?.Cancel();
         _showListenerCancellation?.Dispose();
         _showEvent?.Dispose();

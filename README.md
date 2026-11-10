@@ -22,6 +22,8 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 - **Português e inglês**, detectados automaticamente pelo idioma do Windows.
 - **Modo compacto** automático quando a janela fica pequena.
 - **Mini relógio flutuante**, sempre sobre todas as janelas, com controles, arraste e posição lembrada.
+- **Lista de tarefas** em uma sidebar que desliza para fora à esquerda, com adição rápida, conclusão, exclusão, **reordenação por arraste**, persistência e **cronômetro por tarefa**.
+- **Salvamento automático** a cada 15 segundos, inclusive do cronômetro de tarefa em andamento, ao fechar e no logoff do Windows.
 - **Sempre no topo**, dados 100% locais e nenhuma telemetria.
 
 | Tema escuro | Modo compacto |
@@ -34,7 +36,28 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 
 Clique no botão de mini janela na barra de título, use o menu da bandeja ou pressione `F9`. O relógio compacto fica **acima de todas as janelas**, pode ser arrastado para qualquer canto da tela e continua sincronizado com o timer principal. A posição é lembrada entre execuções.
 
+Quando uma tarefa está sendo cronometrada, o **nome dela aparece no mini relógio**, com o indicador verde de atividade — assim você não perde o contexto do que está fazendo.
+
 O botão de expandir (ou `Esc`) volta para a janela completa; o `X` também restaura a janela principal.
+
+## Tarefas
+
+![Sidebar de tarefas](docs/screenshots/main-tasks.png)
+
+![Arraste com prévia flutuante](docs/screenshots/main-tasks-drag.png)
+
+A sidebar de tarefas abre **para fora, à esquerda da janela**, sem mover o relógio. Use o botão de lista na barra de título, o atalho `T` ou o botão de fechar da própria sidebar.
+
+- Digite a tarefa e pressione `Enter` (ou clique em **+**) para adicionar.
+- Clique no círculo para concluir/desmarcar; o texto concluído fica riscado.
+- Use o `▶` da tarefa para iniciar o **cronômetro** e `❚❚` para pausar. Só uma tarefa fica em contagem por vez.
+- O tempo acumulado aparece abaixo do texto e continua visível depois de concluir, mostrando **quanto tempo você levou** naquela tarefa.
+- Ao **iniciar o foco do timer principal**, o cronômetro da primeira tarefa pendente começa junto; ao **pausar** ou entrar em uma pausa, ele para também. Se você já estiver cronometrando outra tarefa manualmente, ela é preservada. Assim, apenas o tempo de foco entra na tarefa.
+- Ao marcar como concluída, o cronômetro é parado e o tempo é gravado; ao sair do app, o intervalo em andamento também é salvo.
+- **Arraste** a tarefa pelo ícone de pontos (ou pela própria linha) para cima/baixo. Uma **cópia translúcida da tarefa acompanha o mouse** e uma linha verde indica onde ela será solta. A nova ordem é salva em `todos.json`.
+- Use o `X` da tarefa para excluir ou **Limpar concluídas** no rodapé.
+- Tudo é salvo em `todos.json` e recarregado na próxima execução.
+- O contador no botão da barra mostra quantas tarefas ainda estão pendentes.
 
 ## Estatísticas
 
@@ -126,6 +149,7 @@ Os testes cobrem a sequência de rodadas (incluindo pausas desativadas), os cál
 | `R` | Reiniciar ciclo |
 | `→` ou `S` | Pular rodada |
 | `M` | Mudo |
+| `T` | Abrir / fechar a sidebar de tarefas |
 | `F9` | Alternar mini relógio / janela completa |
 | `F11` | Tela cheia |
 | `Esc` | Sair do mini relógio (quando ele está em foco) |
@@ -141,8 +165,11 @@ Tudo fica em `%APPDATA%\WorkingHours`:
 ```
 settings.json     preferências
 sessions.json     histórico de sessões concluídas
+todos.json        lista de tarefas e tempos acumulados
 themes\           seus temas (.json)
 error.log         log de falhas inesperadas
+
+As tarefas, o cronômetro em andamento, as preferências e a posição/tamanho da janela são salvos automaticamente a cada **15 segundos**, além de serem gravados ao fechar, minimizar para a bandeja, entrar no modo mini e durante o logoff/desligamento do Windows.
 ```
 
 Para criar um tema, salve um arquivo em `%APPDATA%\WorkingHours\themes` usando o mesmo formato do Pomotroid:

@@ -35,6 +35,7 @@ public sealed class MainViewModel : ObservableObject
     private RoundType _round = RoundType.Work;
     private IReadOnlyList<RoundDot> _roundDots = Array.Empty<RoundDot>();
     private int _lastDisplayedSecond = -1;
+    private bool _wasTrackingTask;
 
     public MainViewModel(
         SettingsManager settingsManager,
@@ -42,6 +43,7 @@ public sealed class MainViewModel : ObservableObject
         AudioService audio,
         TrayService tray,
         NotificationService notifications,
+        TodoStore todoStore,
         LocalizationService loc)
     {
         _settingsManager = settingsManager;
@@ -51,6 +53,7 @@ public sealed class MainViewModel : ObservableObject
         _tray = tray;
         _notifications = notifications;
         _loc = loc;
+        Todos = new TodoViewModel(todoStore, loc);
 
         _engine = new PomodoroEngine(_settings);
         _engine.Tick += (_, _) => OnTick();
@@ -78,6 +81,8 @@ public sealed class MainViewModel : ObservableObject
     }
 
     public event EventHandler? AttentionRequested;
+
+    public TodoViewModel Todos { get; }
 
     public ICommand ToggleCommand { get; }
     public ICommand ResetCommand { get; }
@@ -236,9 +241,22 @@ public sealed class MainViewModel : ObservableObject
 
     private void UpdateTimerState()
     {
-        IsRunning = _engine.IsRunning;
-        IsPaused = _engine.IsPaused;
+        var running = _engine.IsRunning;
         Round = _engine.CurrentRound;
+
+        // The task stopwatch follows focus rounds only, so breaks do not count.
+        var trackTask = running && Round == RoundType.Work;
+        if (trackTask != _wasTrackingTask)
+        {
+            if (trackTask)
+                Todos.StartFirstPendingTracking();
+            else
+                Todos.StopActiveTracking();
+            _wasTrackingTask = trackTask;
+        }
+
+        IsRunning = running;
+        IsPaused = _engine.IsPaused;
 
         var remaining = _engine.Remaining;
         var seconds = Math.Max(0, (int)Math.Ceiling(remaining.TotalSeconds));

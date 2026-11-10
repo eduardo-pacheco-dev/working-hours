@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:WorkingHours.Controls"
         Title="{DynamicResource L.MiniMode}"
-        Width="184" Height="226" WindowStyle="None" AllowsTransparency="True"
+        Width="184" Height="252" WindowStyle="None" AllowsTransparency="True"
         Background="Transparent" ResizeMode="NoResize" ShowInTaskbar="False"
         Topmost="True" ShowActivated="False" WindowStartupLocation="Manual"
         FontFamily="{DynamicResource AppFont}" FontSize="13" UseLayoutRounding="True"
@@ -47,6 +47,7 @@
         <Grid Margin="10">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
@@ -84,8 +85,23 @@
                 </Button>
             </Grid>
 
+            <!-- Active task -->
+            <Border Grid.Row="1" Margin="2,4,2,0" Padding="7,4" CornerRadius="7"
+                    Background="{DynamicResource BackgroundBrush}"
+                    Visibility="{Binding Todos.HasActiveTask, Converter={StaticResource BoolToVisibility}}">
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse Width="5" Height="5" Fill="{DynamicResource AccentBrush}"
+                             VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Todos.ActiveTaskText}" Margin="5,0,0,0"
+                               FontSize="10.5" VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               ToolTip="{Binding Todos.ActiveTaskText}"
+                               Foreground="{DynamicResource ForegroundDarkerBrush}" />
+                </StackPanel>
+            </Border>
+
             <!-- Clock -->
-            <Viewbox Grid.Row="1" Stretch="Uniform" Margin="2,4">
+            <Viewbox Grid.Row="2" Stretch="Uniform" Margin="2,4">
                 <controls:ProgressDial x:Name="Dial" Width="136" Height="136"
                                        Progress="{Binding Progress}"
                                        Round="{Binding Round}"
@@ -97,7 +113,7 @@
             </Viewbox>
 
             <!-- Controls -->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center"
+            <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Center"
                         Margin="0,2,0,0">
                 <Button Style="{StaticResource TransportButton}" Command="{Binding ResetCommand}"
                         Padding="8" ToolTip="{DynamicResource L.Reset}"
