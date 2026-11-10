@@ -21,11 +21,15 @@ public partial class TodoSidebar : UserControl
     }
 
     public event EventHandler? CloseRequested;
+    public event EventHandler? StatsRequested;
 
     public void FocusNewTask() => NewTaskBox.Focus();
 
     private void Close_Click(object sender, RoutedEventArgs e) =>
         CloseRequested?.Invoke(this, EventArgs.Empty);
+
+    private void Stats_Click(object sender, RoutedEventArgs e) =>
+        StatsRequested?.Invoke(this, EventArgs.Empty);
 
     private void NewTaskBox_KeyDown(object sender, KeyEventArgs e)
     {

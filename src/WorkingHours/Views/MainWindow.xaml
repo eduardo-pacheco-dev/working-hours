@@ -30,7 +30,8 @@
                     BorderBrush="{DynamicResource BackgroundLightestBrush}"
                     BorderThickness="0,0,1,0" ClipToBounds="True">
                 <views:TodoSidebar x:Name="TodoSidebarView"
-                                   CloseRequested="TodoSidebar_CloseRequested" />
+                                   CloseRequested="TodoSidebar_CloseRequested"
+                                   StatsRequested="TodoSidebar_StatsRequested" />
             </Border>
 
             <Grid Grid.Column="1">

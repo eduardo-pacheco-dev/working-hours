@@ -129,6 +129,15 @@ public partial class MainWindow : Window
 
     private void TodoSidebar_CloseRequested(object? sender, EventArgs e) => CloseTodoSidebar();
 
+    private void TodoSidebar_StatsRequested(object? sender, EventArgs e)
+    {
+        var window = new TaskStatsWindow(_vm.Todos, _services.Loc, _services.Themes)
+        {
+            Owner = this
+        };
+        window.ShowDialog();
+    }
+
     private void ToggleTodoSidebar()
     {
         if (_todoAnimating)

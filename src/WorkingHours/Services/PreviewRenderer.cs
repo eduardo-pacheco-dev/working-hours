@@ -55,6 +55,14 @@ public static class PreviewRenderer
         Render(darkMain, Path.Combine(outputDirectory, "main-dark.png"), closeAfter: false);
 
         SeedTodos(services);
+
+        var taskStats = new TaskStatsWindow(services.Main.Todos, services.Loc, services.Themes)
+        {
+            Width = 660,
+            Height = 700
+        };
+        Render(taskStats, Path.Combine(outputDirectory, "task-stats.png"));
+
         services.Main.Todos.StartFirstPendingTracking();
         var mini = new MiniTimerWindow(services, placeOnLoad: false);
         Render(mini, Path.Combine(outputDirectory, "mini.png"));
