@@ -36,6 +36,8 @@ Uma releitura nativa para Windows do [Pomotroid](https://github.com/Splode/pomot
 
 Clique no botão de mini janela na barra de título, use o menu da bandeja ou pressione `F9`. O relógio compacto fica **acima de todas as janelas**, pode ser arrastado para qualquer canto da tela e continua sincronizado com o timer principal. A posição é lembrada entre execuções.
 
+Quando uma tarefa está sendo cronometrada, o **nome dela aparece no mini relógio**, com o indicador verde de atividade — assim você não perde o contexto do que está fazendo.
+
 O botão de expandir (ou `Esc`) volta para a janela completa; o `X` também restaura a janela principal.
 
 ## Tarefas

@@ -177,6 +177,10 @@ public sealed class TodoViewModel : ObservableObject
     public bool HasCompleted => Items.Any(i => i.IsDone);
     public int RemainingCount => Items.Count(i => !i.IsDone);
 
+    public TodoItemViewModel? ActiveTask => _trackedItem;
+    public bool HasActiveTask => _trackedItem is not null;
+    public string ActiveTaskText => _trackedItem?.Text ?? string.Empty;
+
     public string RemainingText
     {
         get
@@ -222,6 +226,7 @@ public sealed class TodoViewModel : ObservableObject
         item.StartTimer();
         _store.Update(item.Item);
         _trackedItem = item;
+        NotifyActiveTaskChanged();
         _clock.Start();
     }
 
@@ -257,6 +262,7 @@ public sealed class TodoViewModel : ObservableObject
         if (ReferenceEquals(_trackedItem, item))
         {
             _trackedItem = null;
+            NotifyActiveTaskChanged();
             _clock.Stop();
         }
     }
@@ -329,6 +335,13 @@ public sealed class TodoViewModel : ObservableObject
 
         (AddCommand as RelayCommand)?.RaiseCanExecuteChanged();
         (ClearCompletedCommand as RelayCommand)?.RaiseCanExecuteChanged();
+    }
+
+    private void NotifyActiveTaskChanged()
+    {
+        OnPropertyChanged(nameof(ActiveTask));
+        OnPropertyChanged(nameof(HasActiveTask));
+        OnPropertyChanged(nameof(ActiveTaskText));
     }
 
     private void OnLanguageChanged(object? sender, EventArgs e)

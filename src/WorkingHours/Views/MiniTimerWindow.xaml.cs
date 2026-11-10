@@ -75,8 +75,8 @@ public partial class MiniTimerWindow : Window
             if (x + 60 > virtualLeft && x < virtualRight - 60 &&
                 y + 60 > virtualTop && y < virtualBottom - 60)
             {
-                Left = x;
-                Top = y;
+                Left = Math.Min(x, virtualRight - Width - 4);
+                Top = Math.Min(y, virtualBottom - Height - 4);
                 return;
             }
         }

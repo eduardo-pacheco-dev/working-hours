@@ -43,9 +43,6 @@ public static class PreviewRenderer
             Render(stats, Path.Combine(outputDirectory, file));
         }
 
-        var mini = new MiniTimerWindow(services, placeOnLoad: false);
-        Render(mini, Path.Combine(outputDirectory, "mini.png"));
-
         var main = new MainWindow(services) { Width = 440, Height = 680 };
         Render(main, Path.Combine(outputDirectory, "main.png"), closeAfter: false);
 
@@ -58,6 +55,11 @@ public static class PreviewRenderer
         Render(darkMain, Path.Combine(outputDirectory, "main-dark.png"), closeAfter: false);
 
         SeedTodos(services);
+        services.Main.Todos.StartFirstPendingTracking();
+        var mini = new MiniTimerWindow(services, placeOnLoad: false);
+        Render(mini, Path.Combine(outputDirectory, "mini.png"));
+        services.Main.Todos.StopAllTracking();
+
         var tasks = new MainWindow(services) { Width = 720, Height = 680 };
         tasks.OpenTodoSidebarForPreview();
         Render(tasks, Path.Combine(outputDirectory, "main-tasks.png"), closeAfter: false);
